@@ -20,17 +20,7 @@ public class Launcher {
         if (args.length < 1 || args.length > 2) {
             throw new IllegalArgumentException("One or two arguments are required!");
         }
-
         int port = Integer.parseInt(args[0]);
-        HttpServer server = startServer(port);
-
-        if (args.length == 2) {
-            sendPostToEnnemy(args[1], port);
-        }
-
-    }
-
-    private static HttpServer startServer(int port) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
         server.createContext("/ping", new PingHandler());
@@ -38,8 +28,10 @@ public class Launcher {
         server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
         server.start();
-        System.out.println("Server started on port " + port);
-        return server;
+        if (args.length == 2) {
+            sendPostToEnnemy(args[1], port);
+        }
+
     }
 
     private static void sendPostToEnnemy(String url, int port) throws IOException, InterruptedException {
@@ -63,12 +55,10 @@ public class Launcher {
     static class PingHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
-            if("GET".equals(t.getRequestMethod())) {
-                String body = "OK";
-                t.sendResponseHeaders(200, body.length());
-                try (OutputStream os = t.getResponseBody()) {
-                    os.write(body.getBytes());
-                }
+            String body = "OK";
+            t.sendResponseHeaders(200, body.length());
+            try (OutputStream os = t.getResponseBody()) {
+                os.write(body.getBytes());
             }
         }
     }
