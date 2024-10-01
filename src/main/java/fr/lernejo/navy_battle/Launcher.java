@@ -17,9 +17,6 @@ import java.util.concurrent.Executors;
 
 public class Launcher {
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (args.length < 1 || args.length > 2) {
-            throw new IllegalArgumentException("One or two arguments are required!");
-        }
         int port = Integer.parseInt(args[0]);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
