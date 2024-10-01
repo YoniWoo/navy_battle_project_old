@@ -20,19 +20,27 @@ public class Launcher {
         if (args.length < 1 || args.length > 2) {
             throw new IllegalArgumentException("One or two arguments are required!");
         }
+
         int port = Integer.parseInt(args[0]);
         String ennemyUrl = args.length == 2 ? args[1] : null;
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
+        GameBoard gameBoard = new GameBoard();
+
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/ping", new PingHandler());
         server.createContext("/api/game/start", new GameStartHandler());
+        server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
         server.start();
-
         System.out.println("Server started on port " + port);
 
         if (ennemyUrl != null) {
-            sendPostToEnnemy(ennemyUrl, port);
+            try {
+                sendPostToEnnemy(ennemyUrl, port);
+            } catch (InterruptedException e) {
+                System.err.println("Error during POST request: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            }
         }
     }
     private static void sendPostToEnnemy(String url, int port) throws IOException, InterruptedException {
