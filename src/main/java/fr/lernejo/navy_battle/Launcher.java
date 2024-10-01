@@ -22,27 +22,26 @@ public class Launcher {
         }
 
         int port = Integer.parseInt(args[0]);
-        String ennemyUrl = args.length == 2 ? args[1] : null;
+        HttpServer server = startServer(port);
 
-        GameBoard gameBoard = new GameBoard();
+        if (args.length == 2) {
+            sendPostToEnnemy(args[1], port);
+        }
 
+    }
+
+    private static HttpServer startServer(int port) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        GameBoard gameBoard = new GameBoard();
         server.createContext("/ping", new PingHandler());
         server.createContext("/api/game/start", new GameStartHandler());
         server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
         server.start();
         System.out.println("Server started on port " + port);
-
-        if (ennemyUrl != null) {
-            try {
-                sendPostToEnnemy(ennemyUrl, port);
-            } catch (InterruptedException e) {
-                System.err.println("Error during POST request: " + e.getMessage());
-                Thread.currentThread().interrupt();
-            }
-        }
+        return server;
     }
+
     private static void sendPostToEnnemy(String url, int port) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();

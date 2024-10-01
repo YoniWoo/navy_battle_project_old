@@ -16,44 +16,38 @@ public class FireHandler implements HttpHandler {
     public FireHandler(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
     }
-
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         if (!"GET".equals(httpExchange.getRequestMethod())) {
             httpExchange.sendResponseHeaders(404, -1);
             return;
         }
-
         String query = httpExchange.getRequestURI().getQuery();
         Map<String, String> params = parseQuery(query);
         String cell = params.get("cell");
-
-        System.out.println("Paramètre cell reçu: " + cell);
-
         if (cell == null || !isValidCell(cell)) {
-            System.out.println("Cell invalide ou manquante: " + cell);
             httpExchange.sendResponseHeaders(400, -1);
             return;
         }
 
+        handleFireAtCell(httpExchange, cell);
+    }
+    private void handleFireAtCell(HttpExchange httpExchange, String cell) throws IOException {
         FireResult result = gameBoard.fireAt(cell.toUpperCase());
-
-        System.out.println("Resultat du tir: " + result.getConsequence());
-
         FireResponse response = new FireResponse(result.getConsequence(), result.areShipsLeft());
+        sendJsonResponse(httpExchange, response);
+    }
+    private void sendJsonResponse(HttpExchange httpExchange, FireResponse response) throws IOException {
         String jsonResponse = objectMapper.writeValueAsString(response);
-
         httpExchange.getResponseHeaders().add("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, jsonResponse.length());
         try (OutputStream os = httpExchange.getResponseBody()) {
             os.write(jsonResponse.getBytes());
         }
     }
-
     private boolean isValidCell(String cell) {
         return cell.matches("^[A-Ja-j](10|[0-9])$");
     }
-
     private Map<String, String> parseQuery(String query) {
         Map<String, String> result = new HashMap<>();
         if (query == null || query.isEmpty()) {

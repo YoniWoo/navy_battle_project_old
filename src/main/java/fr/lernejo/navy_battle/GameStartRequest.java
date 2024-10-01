@@ -5,6 +5,11 @@ public class GameStartRequest {
     private final String url;
     private final String message;
 
+    public GameStartRequest() {
+        this.id = null;
+        this.url = null;
+        this.message = null;
+    }
     public GameStartRequest(String id, String url, String message) {
         this.id = id;
         this.url = url;
