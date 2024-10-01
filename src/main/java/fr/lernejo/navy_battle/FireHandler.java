@@ -30,14 +30,15 @@ public class FireHandler implements HttpHandler {
             return;
         }
 
-        handleFireAtCell(httpExchange, cell);
-    }
-    private void handleFireAtCell(HttpExchange httpExchange, String cell) throws IOException {
         FireResult result = gameBoard.fireAt(cell.toUpperCase());
-        FireResponse response = new FireResponse(result.getConsequence(), result.areShipsLeft());
-        sendJsonResponse(httpExchange, response);
+        if ("miss".equals(result.getConsequence())) {
+            sendJsonResponse(httpExchange, result);
+        } else {
+            sendJsonResponse(httpExchange, result);
+        }
     }
-    private void sendJsonResponse(HttpExchange httpExchange, FireResponse response) throws IOException {
+    private void sendJsonResponse(HttpExchange httpExchange, FireResult result) throws IOException {
+        FireResponse response = new FireResponse(result.getConsequence(), result.areShipsLeft());
         String jsonResponse = objectMapper.writeValueAsString(response);
         httpExchange.getResponseHeaders().add("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, jsonResponse.length());

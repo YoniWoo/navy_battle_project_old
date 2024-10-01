@@ -2,7 +2,7 @@ package fr.lernejo.navy_battle;
 
 public class FireResponse {
     private final String consequence;
-    public private final boolean shipLeft;
+    private final boolean shipLeft;
 
     public FireResponse(String consequence, boolean shipLeft) {
         this.consequence = consequence;

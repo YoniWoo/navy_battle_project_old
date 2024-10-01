@@ -23,7 +23,7 @@ public class GameBoard {
     }
 
     public FireResult fireAt(String cell) {
-        if (!firedCells.contains(cell)) {
+        if (firedCells.contains(cell)) {
             return createFireResult(cell);
         }
         firedCells.add(cell);
