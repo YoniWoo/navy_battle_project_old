@@ -1,12 +1,9 @@
 package fr.lernejo.navy_battle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,16 +15,26 @@ import java.util.concurrent.Executors;
 public class Launcher {
     public static void main(String[] args) throws IOException, InterruptedException {
         int port = Integer.parseInt(args[0]);
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        GameBoard gameBoard = new GameBoard();
-        server.createContext("/ping", Launcher::pingHandler);
-        server.createContext("/api/game/start", new GameStartHandler());
-        server.createContext("/api/game/fire", new FireHandler(gameBoard));
-        server.setExecutor(Executors.newFixedThreadPool(1));
+        HttpServer server = server(port);
         server.start();
         if (args.length == 2) {
             sendPostToEnnemy(args[1], port);
         }
+    }
+
+    private static HttpServer server(int port) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        GameBoard gameBoard = new GameBoard();
+        server.createContext("/ping", t -> {
+            String body = "OK";
+            t.sendResponseHeaders(200, body.length());
+            t.getResponseBody().write(body.getBytes());
+            t.getResponseBody().close();
+        });
+        server.createContext("/api/game/start", new GameStartHandler());
+        server.createContext("/api/game/fire", new FireHandler(gameBoard));
+        server.setExecutor(Executors.newFixedThreadPool(1));
+        return server;
     }
 
     private static void sendPostToEnnemy(String url, int port) throws IOException, InterruptedException {
@@ -45,12 +52,5 @@ public class Launcher {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println("Réponse de l'adversaire: " + response.statusCode() + " - " + response.body());
-    }
-
-    public static void pingHandler(HttpExchange t) throws IOException {
-        String body = "OK";
-        t.sendResponseHeaders(200, body.length());
-        t.getResponseBody().write(body.getBytes());
-        t.getResponseBody().close();
     }
 }
