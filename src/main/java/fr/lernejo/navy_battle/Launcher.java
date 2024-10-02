@@ -20,7 +20,7 @@ public class Launcher {
         int port = Integer.parseInt(args[0]);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
-        server.createContext("/ping", new PingHandler());
+        server.createContext("/ping", Launcher::PingHandler);
         server.createContext("/api/game/start", new GameStartHandler());
         server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
@@ -48,15 +48,11 @@ public class Launcher {
         System.out.println("Réponse de l'adversaire: " + response.statusCode() + " - " + response.body());
     }
 
-
-    static class PingHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange t) throws IOException {
-            String body = "OK";
-            t.sendResponseHeaders(200, body.length());
-            try (OutputStream os = t.getResponseBody()) {
-                os.write(body.getBytes());
-            }
+    public static void PingHandler(HttpExchange t) throws IOException {
+        String body = "OK";
+        t.sendResponseHeaders(200, body.length());
+        try (OutputStream os = t.getResponseBody()) {
+            os.write(body.getBytes());
         }
     }
 }
