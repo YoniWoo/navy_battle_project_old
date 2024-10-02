@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,9 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FireHandlerTest {
     private HttpServer server;
+    private int port;
+
+    private int findPort() throws Exception {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
     @BeforeEach
     void setUp() throws Exception {
-        server = HttpServer.create(new InetSocketAddress(9876), 0);
+        port = findPort();
+        server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
         server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(null);
@@ -28,11 +37,13 @@ public class FireHandlerTest {
     }
     @AfterEach
     void tearDown() throws Exception {
-        server.stop(0);
+        if (server != null) {
+            server.stop(0);
+        }
     }
     @Test
     void testFireHandler() throws Exception {
-        URL url = new URL("http://localhost:9876/api/game/fire?cell=A1");
+        URL url = new URL("http://localhost:" + port + "/api/game/fire?cell=A1");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 

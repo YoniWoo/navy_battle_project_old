@@ -7,10 +7,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -19,20 +21,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameStartHandlerTest {
     private HttpServer server;
+    private int port;
+
+    private int findPort() throws Exception {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
+
     @BeforeEach
     void setUp() throws Exception {
-        server = HttpServer.create(new InetSocketAddress(9876), 0);
+        port = findPort();
+        server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/api/game/start", new GameStartHandler());
         server.setExecutor(null);
         server.start();
     }
     @AfterEach
     void tearDown() throws Exception {
-        server.stop(0);
+        if (server != null) {
+            server.stop(0);
+        }
     }
     @Test
     void testGameStart() throws Exception {
-        URL url = new URL("http://localhost:" + server.getAddress().getPort() + "/api/game/start");
+        URL url = new URL("http://localhost:" + port + "/api/game/start");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -52,7 +65,7 @@ public class GameStartHandlerTest {
             response.append(inputLine);
         }
         in.close();
-        assertTrue(response.toString().contains("http://localhost:9876"));
+        assertTrue(response.toString().contains("http://localhost:" + port));
         assertTrue(response.toString().contains("May the best code win"));
     }
 }
