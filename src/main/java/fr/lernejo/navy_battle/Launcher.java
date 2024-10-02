@@ -20,7 +20,7 @@ public class Launcher {
         int port = Integer.parseInt(args[0]);
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
-        server.createContext("/ping", Launcher::PingHandler);
+        server.createContext("/ping", Launcher::pingHandler);
         server.createContext("/api/game/start", new GameStartHandler());
         server.createContext("/api/game/fire", new FireHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
@@ -28,7 +28,6 @@ public class Launcher {
         if (args.length == 2) {
             sendPostToEnnemy(args[1], port);
         }
-
     }
 
     private static void sendPostToEnnemy(String url, int port) throws IOException, InterruptedException {
@@ -48,11 +47,10 @@ public class Launcher {
         System.out.println("Réponse de l'adversaire: " + response.statusCode() + " - " + response.body());
     }
 
-    public static void PingHandler(HttpExchange t) throws IOException {
+    public static void pingHandler(HttpExchange t) throws IOException {
         String body = "OK";
         t.sendResponseHeaders(200, body.length());
-        try (OutputStream os = t.getResponseBody()) {
-            os.write(body.getBytes());
-        }
+        t.getResponseBody().write(body.getBytes());
+        t.getResponseBody().close();
     }
 }
