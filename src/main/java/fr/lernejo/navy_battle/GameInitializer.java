@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class GameStartHandler implements HttpHandler {
+public class GameInitializer implements HttpHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
@@ -29,21 +29,21 @@ public class GameStartHandler implements HttpHandler {
     }
 
     private void handleGameStart(HttpExchange httpExchange, InputStream requestBody) throws IOException {
-        GameStartRequest gameStartRequest = objectMapper.readValue(requestBody, GameStartRequest.class);
+        GameRequest gameStartRequest = objectMapper.readValue(requestBody, GameRequest.class);
         System.out.println(gameStartRequest);
-        GameStartResponse response = createResponse(httpExchange);
+        GameResponse response = createResponse(httpExchange);
         sendResponse(httpExchange, response);
     }
 
-    private GameStartResponse createResponse(HttpExchange httpExchange) {
-        return new GameStartResponse(
+    private GameResponse createResponse(HttpExchange httpExchange) {
+        return new GameResponse(
             UUID.randomUUID().toString(),
             "http://" + httpExchange.getLocalAddress().getHostName() + ":" + httpExchange.getLocalAddress().getPort(),
             "May the best code win"
         );
     }
 
-    private void sendResponse(HttpExchange httpExchange, GameStartResponse response) throws IOException {
+    private void sendResponse(HttpExchange httpExchange, GameResponse response) throws IOException {
         String responseBody = objectMapper.writeValueAsString(response);
         httpExchange.getResponseHeaders().add("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(202, responseBody.length());

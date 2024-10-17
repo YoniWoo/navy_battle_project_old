@@ -1,7 +1,7 @@
 package fr.lernejo;
 
 import com.sun.net.httpserver.HttpServer;
-import fr.lernejo.navy_battle.FireHandler;
+import fr.lernejo.navy_battle.AttackHandler;
 import fr.lernejo.navy_battle.GameBoard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ public class FireHandlerTest {
         port = findPort();
         server = HttpServer.create(new InetSocketAddress(port), 0);
         GameBoard gameBoard = new GameBoard();
-        server.createContext("/api/game/fire", new FireHandler(gameBoard));
+        server.createContext("/api/game/fire", new AttackHandler(gameBoard));
         server.setExecutor(null);
         server.start();
     }

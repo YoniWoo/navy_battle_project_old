@@ -1,16 +1,20 @@
 package fr.lernejo.navy_battle;
 
-public class GameStartResponse {
+public class GameRequest {
     private final String id;
     private final String url;
     private final String message;
 
-    public GameStartResponse(String id, String url, String message) {
+    public GameRequest() {
+        this.id = null;
+        this.url = null;
+        this.message = null;
+    }
+    public GameRequest(String id, String url, String message) {
         this.id = id;
         this.url = url;
         this.message = message;
     }
-
     public String getId() {
         return id;
     }

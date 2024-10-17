@@ -31,8 +31,8 @@ public class Launcher {
             t.getResponseBody().write(body.getBytes());
             t.getResponseBody().close();
         });
-        server.createContext("/api/game/start", new GameStartHandler());
-        server.createContext("/api/game/fire", new FireHandler(gameBoard));
+        server.createContext("/api/game/start", new GameInitializer());
+        server.createContext("/api/game/fire", new AttackHandler(gameBoard));
         server.setExecutor(Executors.newFixedThreadPool(1));
         return server;
     }
@@ -41,7 +41,7 @@ public class Launcher {
         HttpClient client = HttpClient.newHttpClient();
         ObjectMapper mapper = new ObjectMapper();
 
-        GameStartRequest myInfo = new GameStartRequest(UUID.randomUUID().toString(), "http://localhost:" + port, "hello");
+        GameRequest myInfo = new GameRequest(UUID.randomUUID().toString(), "http://localhost:" + port, "hello");
         String requestBody = mapper.writeValueAsString(myInfo);
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(url + "/api/game/start"))

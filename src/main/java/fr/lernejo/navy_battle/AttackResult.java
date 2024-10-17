@@ -1,10 +1,10 @@
 package fr.lernejo.navy_battle;
 
-public class FireResult {
+public class AttackResult {
     private final String consequence;
     private final boolean shipLeft;
 
-    public FireResult(String consequence, boolean shipLeft) {
+    public AttackResult(String consequence, boolean shipLeft) {
         this.consequence = consequence;
         this.shipLeft = shipLeft;
     }

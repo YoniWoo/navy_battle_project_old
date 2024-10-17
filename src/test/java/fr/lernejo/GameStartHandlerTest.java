@@ -1,13 +1,12 @@
 package fr.lernejo;
 
 import com.sun.net.httpserver.HttpServer;
-import fr.lernejo.navy_battle.GameStartHandler;
+import fr.lernejo.navy_battle.GameInitializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -33,7 +32,7 @@ public class GameStartHandlerTest {
     void setUp() throws Exception {
         port = findPort();
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/api/game/start", new GameStartHandler());
+        server.createContext("/api/game/start", new GameInitializer());
         server.setExecutor(null);
         server.start();
     }

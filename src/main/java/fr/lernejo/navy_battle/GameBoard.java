@@ -22,7 +22,7 @@ public class GameBoard {
         ships.add(new Ship(Set.of("D1", "D2")));
     }
 
-    public FireResult fireAt(String cell) {
+    public AttackResult fireAt(String cell) {
         if (firedCells.contains(cell)) {
             return createFireResult(cell);
         }
@@ -31,20 +31,20 @@ public class GameBoard {
         if (shipOpt.isPresent()) {
             return handleHitOnShip(shipOpt.get(), cell);
         }
-        return new FireResult("miss", areShipsLeft());
+        return new AttackResult("miss", areShipsLeft());
     }
-    private FireResult createFireResult(String cell) {
+    private AttackResult createFireResult(String cell) {
         Optional<Ship> shipOpt = findShipAt(cell);
         if (shipOpt.isPresent()) {
-            return new FireResult(shipOpt.get().isSunk() ? "sunk" : "hit", areShipsLeft() );
+            return new AttackResult(shipOpt.get().isSunk() ? "sunk" : "hit", areShipsLeft() );
         } else {
-            return new FireResult("miss", areShipsLeft());
+            return new AttackResult("miss", areShipsLeft());
         }
     }
 
-    private FireResult handleHitOnShip(Ship ship, String cell) {
+    private AttackResult handleHitOnShip(Ship ship, String cell) {
         ship.hit(cell);
-        return new FireResult(ship.isSunk() ? "sunk" : "hit", areShipsLeft());
+        return new AttackResult(ship.isSunk() ? "sunk" : "hit", areShipsLeft());
     }
 
     private Optional<Ship> findShipAt(String cell) {

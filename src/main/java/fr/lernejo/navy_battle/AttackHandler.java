@@ -9,11 +9,11 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FireHandler implements HttpHandler {
+public class AttackHandler implements HttpHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final GameBoard gameBoard;
 
-    public FireHandler(GameBoard gameBoard) {
+    public AttackHandler(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
     }
     @Override
@@ -30,15 +30,15 @@ public class FireHandler implements HttpHandler {
             return;
         }
 
-        FireResult result = gameBoard.fireAt(cell.toUpperCase());
+        AttackResult result = gameBoard.fireAt(cell.toUpperCase());
         if ("miss".equals(result.getConsequence())) {
             sendJsonResponse(httpExchange, result);
         } else {
             sendJsonResponse(httpExchange, result);
         }
     }
-    private void sendJsonResponse(HttpExchange httpExchange, FireResult result) throws IOException {
-        FireResponse response = new FireResponse(result.getConsequence(), result.areShipsLeft());
+    private void sendJsonResponse(HttpExchange httpExchange, AttackResult result) throws IOException {
+        AttackResponse response = new AttackResponse(result.getConsequence(), result.areShipsLeft());
         String jsonResponse = objectMapper.writeValueAsString(response);
         httpExchange.getResponseHeaders().add("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, jsonResponse.length());
